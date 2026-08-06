@@ -3,7 +3,25 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.pakinvestmentxearning.app',
   appName: 'PAK INVESTMENT X EARNING',
-  webDir: 'dist'
+  webDir: 'dist',
+  bundledWebRuntime: false,
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2500,
+      launchAutoHide: true,
+      launchFadeOutDuration: 500,
+      backgroundColor: '#020617',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+  },
+  server: {
+    androidScheme: 'https',
+    cleartext: true
+  }
 };
 
 export default config;
