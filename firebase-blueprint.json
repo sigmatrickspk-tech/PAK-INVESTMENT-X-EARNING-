@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "users": {
+      "title": "users",
+      "description": "User profiles and financial stats",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "fullName": { "type": "string" },
+        "phone": { "type": "string" },
+        "passwordText": { "type": "string" },
+        "balance": { "type": "number" },
+        "totalEarnings": { "type": "number" },
+        "totalDeposited": { "type": "number" },
+        "totalWithdrawn": { "type": "number" },
+        "status": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "referralCode": { "type": "string" }
+      },
+      "required": ["uid", "email", "balance", "role", "status"]
+    },
+    "transactions": {
+      "title": "transactions",
+      "description": "Deposit and withdrawal requests",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "method": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["userId", "type", "method", "amount", "status"]
+    },
+    "promocodes": {
+      "title": "promocodes",
+      "description": "Promo codes for balance claims",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "rewardAmount": { "type": "number" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["code", "rewardAmount", "isActive"]
+    },
+    "tickets": {
+      "title": "tickets",
+      "description": "Support tickets and user live chat",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subject": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["userId", "status"]
+    },
+    "systemConfig": {
+      "title": "systemConfig",
+      "description": "System settings and payment details",
+      "type": "object",
+      "properties": {
+        "siteName": { "type": "string" },
+        "jazzcashNumber": { "type": "string" }
+      }
+    },
+    "faqs": {
+      "title": "faqs",
+      "description": "Frequently asked questions",
+      "type": "object",
+      "properties": {
+        "question": { "type": "string" },
+        "answer": { "type": "string" }
+      }
+    }
+  }
+}
