@@ -12,7 +12,8 @@ import {
   Sparkles,
   Copy,
   Check,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react';
 import { Transaction, SystemConfig } from '../types';
 
@@ -38,6 +39,37 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     navigator.clipboard.writeText(tid);
     setCopiedTxId(tid);
     setTimeout(() => setCopiedTxId(null), 2000);
+  };
+
+  // Export Transaction History Logs to Downloadable Formatted CSV/TXT
+  const handleExportLogs = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      alert('No transactions available to export.');
+      return;
+    }
+
+    const headers = ['Date & Time', 'Transaction ID', 'Type', 'Method', 'Account / TID', 'Amount (PKR)', 'Status', 'Notes'];
+    const rows = filteredTransactions.map(tx => [
+      `"${new Date(tx.createdAt).toLocaleString()}"`,
+      `"${tx.id}"`,
+      `"${tx.type.replace('_', ' ').toUpperCase()}"`,
+      `"${tx.method || 'Internal Ledger'}"`,
+      `"${tx.transactionId || tx.accountNumber || 'N/A'}"`,
+      `"${tx.amount}"`,
+      `"${tx.status.toUpperCase()}"`,
+      `"${(tx.adminNote || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `financial-transaction-history-${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleDownloadReceipt = (tx: Transaction) => {
@@ -194,7 +226,14 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleExportLogs}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all"
+            title="Export Transaction History to Formatted CSV Log"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-400" /> Export Summary
+          </button>
           <button
             onClick={onOpenDeposit}
             className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"

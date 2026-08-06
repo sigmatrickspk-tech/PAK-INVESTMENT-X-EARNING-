@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PAK INVESTMENT X EARNING</string>
+    <string name="title_activity_main">PAK INVESTMENT X EARNING</string>
+    <string name="package_name">com.pakinvestmentxearning.app</string>
+    <string name="custom_url_scheme">com.pakinvestmentxearning.app</string>
+</resources>

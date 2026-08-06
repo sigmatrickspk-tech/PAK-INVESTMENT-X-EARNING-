@@ -3,6 +3,8 @@ import {
   ResponsiveContainer, 
   AreaChart, 
   Area, 
+  LineChart,
+  Line,
   XAxis, 
   YAxis, 
   Tooltip, 
@@ -11,7 +13,7 @@ import {
   Bar, 
   Legend 
 } from 'recharts';
-import { TrendingUp, BarChart3, Calendar, DollarSign, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, BarChart3, LineChart as LineIcon, Calendar, DollarSign, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Transaction, SystemConfig } from '../types';
 
 interface UserAnalyticsChartProps {
@@ -24,7 +26,7 @@ export const UserAnalyticsChart: React.FC<UserAnalyticsChartProps> = ({
   systemConfig
 }) => {
   const [timeframeDays, setTimeframeDays] = useState<number>(30);
-  const [chartType, setChartType] = useState<'area' | 'bar'>('area');
+  const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('line');
 
   // Process transaction data over timeframe
   const chartData = useMemo(() => {
@@ -112,6 +114,17 @@ export const UserAnalyticsChart: React.FC<UserAnalyticsChartProps> = ({
           {/* Chart View Toggle */}
           <div className="flex items-center bg-slate-950 dark:bg-slate-950 p-1 rounded-xl border border-slate-800">
             <button
+              onClick={() => setChartType('line')}
+              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                chartType === 'line'
+                  ? 'bg-slate-800 text-emerald-400'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="30-Day Line Chart View"
+            >
+              <LineIcon className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => setChartType('area')}
               className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
                 chartType === 'area'
@@ -162,7 +175,43 @@ export const UserAnalyticsChart: React.FC<UserAnalyticsChartProps> = ({
       {/* Recharts Visual Canvas */}
       <div className="h-64 md:h-72 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          {chartType === 'area' ? (
+          {chartType === 'line' ? (
+            <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+              <XAxis dataKey="displayDate" stroke="#64748b" fontSize={11} tickLine={false} />
+              <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#0f172a',
+                  borderColor: '#334155',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)'
+                }}
+                formatter={(value: any) => [`${systemConfig.currencySymbol}${Number(value).toLocaleString()}`, '']}
+              />
+              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+              <Line
+                type="monotone"
+                dataKey="earnings"
+                name="Daily Earnings"
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#022c22' }}
+                activeDot={{ r: 7, fill: '#34d399' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="deposits"
+                name="Deposits"
+                stroke="#38bdf8"
+                strokeWidth={2}
+                strokeDasharray="4 4"
+                dot={{ r: 3, fill: '#38bdf8' }}
+              />
+            </LineChart>
+          ) : chartType === 'area' ? (
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">

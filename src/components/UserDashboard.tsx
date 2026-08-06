@@ -29,7 +29,8 @@ import {
   Target,
   Edit3,
   User,
-  Plus
+  Plus,
+  Crown
 } from 'lucide-react';
 import { 
   collection, 
@@ -60,6 +61,7 @@ import { TopEarners } from './TopEarners';
 import { TopReferrers } from './TopReferrers';
 import { RecentTransactions } from './RecentTransactions';
 import { CameraAvatarModal } from './CameraAvatarModal';
+import { VipLevels } from './VipLevels';
 import { logUserActivity } from '../lib/activityLogger';
 
 interface UserDashboardProps {
@@ -77,7 +79,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
 }) => {
   const { userProfile, systemConfig, updateProfileData, firebaseUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'pools' | 'team' | 'proofs' | 'games'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'pools' | 'team' | 'proofs' | 'games' | 'vip'>('overview');
   const [bottomNavTab, setBottomNavTab] = useState<ActiveNavTab>('home');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
@@ -239,6 +241,11 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(`🔥 Join PAK INVESTMENT X EARNING! Earn daily profits with instant JazzCash & EasyPaisa payouts. Register now using my referral link: ${refUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const handleShareTelegram = () => {
+    const text = encodeURIComponent(`🔥 Join PAK INVESTMENT X EARNING! Earn daily profits with instant JazzCash & EasyPaisa payouts.`);
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${text}`, '_blank');
   };
 
   const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
@@ -521,6 +528,18 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         </button>
 
         <button
+          onClick={() => { setActiveTab('vip'); setBottomNavTab('home'); }}
+          className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
+            activeTab === 'vip'
+              ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 font-black'
+              : 'text-amber-300 hover:text-white'
+          }`}
+        >
+          <Crown className="w-4 h-4 text-amber-400" />
+          VIP Levels
+        </button>
+
+        <button
           onClick={() => { setActiveTab('proofs'); setBottomNavTab('home'); }}
           className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
             activeTab === 'proofs'
@@ -563,6 +582,15 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
       {/* TAB CONTENT: PROOFS */}
       {activeTab === 'proofs' && (
         <WithdrawalProofs />
+      )}
+
+      {/* TAB CONTENT: VIP LEVELS */}
+      {activeTab === 'vip' && (
+        <VipLevels 
+          totalInvested={userProfile?.totalInvested || 0} 
+          systemConfig={systemConfig} 
+          onOpenPlans={() => setActiveTab('plans')} 
+        />
       )}
 
       {/* TAB CONTENT: GAMES */}
@@ -748,10 +776,17 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
               </button>
               <button
                 onClick={handleShareWhatsApp}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition-all"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition-all"
               >
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
+              </button>
+              <button
+                onClick={handleShareTelegram}
+                className="bg-sky-600 hover:bg-sky-500 text-white font-black text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition-all"
+              >
+                <Send className="w-3.5 h-3.5" />
+                Telegram
               </button>
             </div>
           </div>

@@ -127,10 +127,11 @@ export interface EarningTask {
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'admin';
+  sender: 'user' | 'admin' | 'ai' | 'bot';
   senderName: string;
   text: string;
   timestamp: number;
+  isAiGenerated?: boolean;
 }
 
 export interface SupportTicket {
