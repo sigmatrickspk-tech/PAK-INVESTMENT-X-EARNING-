@@ -71,27 +71,27 @@ export const DEFAULT_PLANS: InvestmentPlan[] = [
 
 export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   siteName: 'PAK INVESTMENT X EARNING',
-  announcementBanner: '🔥 Welcome to PAK INVESTMENT X EARNING! Daily payouts via JazzCash & EasyPaisa. Join our official channel for promo codes!',
+  announcementBanner: '🔥 Welcome to PAK INVESTMENT X EARNING! Daily payouts via JazzCash & EasyPaisa. Instant returns on investment plans!',
   currencySymbol: 'PKR ',
   minDeposit: 500,
   minWithdrawal: 300,
   jazzcashNumber: '03019876543',
-  jazzcashTitle: 'SIGMAX TRADERS OFFICIAL',
+  jazzcashTitle: 'PAK INVESTMENT X EARNING OFFICIAL',
   easypaisaNumber: '03459876543',
-  easypaisaTitle: 'SIGMAX ENTERPRISES',
-  supportEmail: 'support@sigmaxearnings.com',
+  easypaisaTitle: 'PAK INVESTMENT X EARNING ENTERPRISES',
+  supportEmail: 'support@pakinvestmentxearning.com',
   supportPhone: '+92 301 9876543',
   supportWhatsApp: '+923019876543',
   customApiKeys: {
-    API_GATEWAY_URL: 'https://api.sigmaxearnings.com/v1',
-    SMS_NOTIFICATION_KEY: 'sk_live_sigmax_sms_99182',
-    ANALYTICS_TRACKER_ID: 'UA-SIGMAX-88192'
+    API_GATEWAY_URL: 'https://api.pakinvestmentxearning.com/v1',
+    SMS_NOTIFICATION_KEY: 'sk_live_pak_sms_99182',
+    ANALYTICS_TRACKER_ID: 'UA-PAK-88192'
   },
   externalLinks: {
-    TELEGRAM_OFFICIAL: 'https://t.me/sigmaxearnings_official',
-    WHATSAPP_COMMUNITY: 'https://chat.whatsapp.com/sigmaxearnings',
-    FACEBOOK_GROUP: 'https://facebook.com/groups/sigmaxearnings',
-    YOUTUBE_TUTORIALS: 'https://youtube.com/@sigmaxearnings'
+    TELEGRAM_OFFICIAL: '',
+    WHATSAPP_COMMUNITY: '',
+    FACEBOOK_GROUP: '',
+    YOUTUBE_TUTORIALS: ''
   },
   maintenanceMode: false,
   referralBonusAmount: 100,
@@ -99,7 +99,7 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   videoAdReward: 30,
   surveyReward: 45,
   appReviewReward: 60,
-  allowedAdminEmails: ['sigmaxearning@gmail.com'],
+  allowedAdminEmails: ['admin@pakinvestmentxearning.com'],
 };
 
 export const DEFAULT_FAQS: FAQItem[] = [
@@ -130,8 +130,8 @@ export const DEFAULT_FAQS: FAQItem[] = [
   {
     id: 'faq-5',
     category: 'Promo Codes',
-    question: 'Where can I find SIGMAXEARNINGS Promo Codes?',
-    answer: 'Promo codes are posted regularly in our official Telegram channel and WhatsApp group during special events and flash giveaways. Enter the code in the "Redeem Code" modal on your dashboard to claim instant cash bonuses.'
+    question: 'Where can I find PAK INVESTMENT X EARNING Promo Codes?',
+    answer: 'Promo codes are posted regularly in our official announcements during special events and flash giveaways. Enter the code in the "Redeem Code" modal on your dashboard to claim instant cash bonuses.'
   }
 ];
 
@@ -168,8 +168,8 @@ export const DEFAULT_TASKS: EarningTask[] = [
   },
   {
     id: 'task-4',
-    title: 'Join Telegram Channel',
-    description: 'Subscribe to our official Telegram channel for updates and promo codes.',
+    title: 'Official Community Updates',
+    description: 'Subscribe to our official announcement updates for promo codes.',
     reward: 100,
     timerSeconds: 10,
     category: 'task',
@@ -181,7 +181,7 @@ export const DEFAULT_TASKS: EarningTask[] = [
 export const DEFAULT_PROMOCODES: PromoCode[] = [
   {
     id: 'promo-1',
-    code: 'SIGMA2026',
+    code: 'PAK2026',
     rewardAmount: 200,
     maxUses: 100,
     usedCount: 0,
@@ -348,6 +348,6 @@ export const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
 
 export const DEFAULT_COMMUNITY_CHATS: CommunityChatMessage[] = [
   { id: 'chat-1', userId: 'm-101', userName: 'Adil Tanveer', text: 'hi everyone, how is everyone performing today?', timestamp: Date.now() - 300000, isVerifiedInvestor: true, room: 'live' },
-  { id: 'chat-2', userId: 'm-102', userName: 'Waseela Official', text: 'Welcome to official investor community chat! Share tips and withdrawal proofs here.', timestamp: Date.now() - 600000, isVerifiedInvestor: true, room: 'live' },
-  { id: 'chat-3', userId: 'm-103', userName: 'Sigma OG', text: 'Daily profit was credited on time at midnight! Love the platform.', timestamp: Date.now() - 120000, isVerifiedInvestor: true, room: 'live' }
+  { id: 'chat-2', userId: 'm-102', userName: 'PAK INVESTMENT Official', text: 'Welcome to official investor community chat! Share tips and withdrawal proofs here.', timestamp: Date.now() - 600000, isVerifiedInvestor: true, room: 'live' },
+  { id: 'chat-3', userId: 'm-103', userName: 'Pak Investor OG', text: 'Daily profit was credited on time at midnight! Love the platform.', timestamp: Date.now() - 120000, isVerifiedInvestor: true, room: 'live' }
 ];

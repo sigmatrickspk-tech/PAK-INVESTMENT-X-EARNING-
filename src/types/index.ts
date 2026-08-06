@@ -20,6 +20,9 @@ export interface UserProfile {
   referralEarnings?: number;
   themePreference?: 'dark' | 'light';
   lastCheckinTimestamp?: number;
+  earningsGoal?: number;
+  notificationsEnabled?: boolean;
+  avatarUrl?: string;
 }
 
 export type TransactionType = 

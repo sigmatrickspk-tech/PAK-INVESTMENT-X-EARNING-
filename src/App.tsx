@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { NotificationToast } from './components/NotificationToast';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -70,7 +71,7 @@ function AppContent() {
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4" />
         <h2 className="text-xl font-black uppercase tracking-widest text-emerald-400 font-sans">
-          SIGMAXEARNINGS
+          PAK INVESTMENT X EARNING
         </h2>
         <p className="text-xs text-slate-400 mt-1">Connecting to Realtime Firebase Financial Ledger...</p>
       </div>
@@ -78,7 +79,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 transition-colors">
+    <div className="min-h-screen bg-slate-950 dark:bg-slate-950 light:bg-slate-50 text-slate-100 dark:text-slate-100 light:text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
       
       {/* Realtime Payout & Deposit Status Toasts */}
       <NotificationToast />
@@ -221,7 +222,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <AppContent />
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
       </ThemeProvider>
     </AuthProvider>
   );

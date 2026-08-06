@@ -1,6 +1,8 @@
 {
   "name": "PAK INVESTMENT X EARNING",
   "description": "Earning platform with user dashboard, manual JazzCash/EasyPaisa deposit & withdrawal approval, promo codes, admin management panel, and support chat.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "camera"
+  ],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

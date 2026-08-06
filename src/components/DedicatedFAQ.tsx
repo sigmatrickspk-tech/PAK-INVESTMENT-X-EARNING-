@@ -17,14 +17,21 @@ import { useAuth } from '../context/AuthContext';
 
 interface FAQProps {
   onOpenTicket?: () => void;
+  initialSearchQuery?: string;
 }
 
-export const DedicatedFAQ: React.FC<FAQProps> = ({ onOpenTicket }) => {
+export const DedicatedFAQ: React.FC<FAQProps> = ({ onOpenTicket, initialSearchQuery = '' }) => {
   const { systemConfig } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [expandedId, setExpandedId] = useState<string | null>('faq-1');
   const [helpfulFeedback, setHelpfulFeedback] = useState<Record<string, boolean>>({});
+
+  React.useEffect(() => {
+    if (initialSearchQuery !== undefined) {
+      setSearchQuery(initialSearchQuery);
+    }
+  }, [initialSearchQuery]);
 
   const categories = ['All', 'Deposits', 'Withdrawals', 'Earnings', 'Support', 'Promo Codes'];
 

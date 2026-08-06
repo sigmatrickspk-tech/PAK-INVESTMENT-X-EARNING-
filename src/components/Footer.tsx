@@ -90,9 +90,9 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-        <p>© {new Date().getFullYear()} {systemConfig.siteName}. All rights reserved.</p>
-        <p className="flex items-center gap-1">
-          Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> for verified fast earnings.
+        <p>© {new Date().getFullYear()} PAK INVESTMENT X EARNING. All rights reserved.</p>
+        <p className="flex items-center gap-1 font-bold text-emerald-400">
+          Made by PAK INVESTMENT X EARNING TEAM
         </p>
       </div>
     </footer>

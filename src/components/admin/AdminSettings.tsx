@@ -22,7 +22,7 @@ export const AdminSettings: React.FC = () => {
   const [subAdminEmails, setSubAdminEmails] = useState<string[]>(
     systemConfig.allowedAdminEmails && systemConfig.allowedAdminEmails.length > 0
       ? systemConfig.allowedAdminEmails
-      : ['sigmaxearning@gmail.com']
+      : ['admin@pakinvestmentxearning.com']
   );
   const [newSubAdminEmail, setNewSubAdminEmail] = useState('');
 
@@ -452,7 +452,7 @@ export const AdminSettings: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 text-amber-400" /> 6. Owner & Sub-Admin Panel Access
               </h3>
               <p className="text-[11px] text-slate-400">
-                Primary Super Admin: <span className="text-amber-300 font-mono font-bold">sigmaxearning@gmail.com</span> (Password: <span className="text-slate-300 font-mono">9908761Hf@</span>). Add sub-admin emails below to grant them Admin Panel access.
+                Primary Super Admin: <span className="text-amber-300 font-mono font-bold">admin@pakinvestmentxearning.com</span>. Add sub-admin emails below to grant them Admin Panel access.
               </p>
             </div>
           </div>
@@ -486,7 +486,7 @@ export const AdminSettings: React.FC = () => {
                 {subAdminEmails.map((e, idx) => (
                   <div key={idx} className="bg-slate-950 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-mono font-bold text-amber-300 flex items-center gap-2">
                     <span>{e}</span>
-                    {e.toLowerCase() !== 'sigmaxearning@gmail.com' && (
+                    {e.toLowerCase() !== 'admin@pakinvestmentxearning.com' && (
                       <button
                         type="button"
                         onClick={() => setSubAdminEmails(subAdminEmails.filter((_, i) => i !== idx))}

@@ -15,15 +15,16 @@ export const UserActivityLogComponent: React.FC = () => {
 
     const q = query(
       collection(db, 'activityLogs'),
-      where('userId', '==', firebaseUser.uid),
-      orderBy('timestamp', 'desc')
+      where('userId', '==', firebaseUser.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const logs: UserActivityLog[] = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      } as UserActivityLog));
+      const logs: UserActivityLog[] = snapshot.docs
+        .map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as UserActivityLog))
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       setActivities(logs);
       setLoading(false);
     }, (err) => {
@@ -63,10 +64,10 @@ export const UserActivityLogComponent: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-black text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-emerald-400" /> Account Activity Log
+            <ShieldCheck className="w-5 h-5 text-emerald-400" /> Security Audit Log & Activity Trail
           </h2>
           <p className="text-xs text-slate-400">
-            Real-time records of logins, promo claims, deposits, cashouts, and subscriptions for maximum transparency.
+            Transparent immutable timestamps of account logins, deposit requests, cashout submissions, and promo redemptions.
           </p>
         </div>
         <span className="text-xs font-mono font-bold bg-slate-950 text-slate-300 border border-slate-800 px-3 py-1 rounded-full">

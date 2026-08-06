@@ -21,7 +21,7 @@ export const TeamCenter: React.FC = () => {
   const [activeLevel, setActiveLevel] = useState<number>(1);
   const [copied, setCopied] = useState(false);
 
-  const refUrl = `${window.location.origin}?ref=${userProfile?.referralCode || 'SIGMA100'}`;
+  const refUrl = `${window.location.origin}?ref=${userProfile?.referralCode || 'PAK100'}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(refUrl);

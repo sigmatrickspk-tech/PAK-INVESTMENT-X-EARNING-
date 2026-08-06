@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -16,7 +16,7 @@ import { Transaction, NotificationToastItem } from '../types';
 export const NotificationToast: React.FC = () => {
   const { firebaseUser, systemConfig } = useAuth();
   const [notifications, setNotifications] = useState<NotificationToastItem[]>([]);
-  const [seenTxIds, setSeenTxIds] = useState<Record<string, string>>({});
+  const seenTxIdsRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
     if (!firebaseUser) return;
@@ -39,7 +39,7 @@ export const NotificationToast: React.FC = () => {
           const isRecentlyProcessed = tx.processedAt && (Date.now() - tx.processedAt < 3600000);
           
           // Check if we already alerted on this status for this tx
-          const prevStatus = seenTxIds[tx.id];
+          const prevStatus = seenTxIdsRef.current[tx.id];
           if (prevStatus !== tx.status && (isRecentlyProcessed || change.type === 'modified')) {
             const newItem: NotificationToastItem = {
               id: `${tx.id}-${Date.now()}`,
@@ -55,10 +55,10 @@ export const NotificationToast: React.FC = () => {
             setNotifications(prev => [newItem, ...prev.slice(0, 4)]);
             
             // Mark as seen
-            setSeenTxIds(prev => ({ ...prev, [tx.id]: tx.status }));
+            seenTxIdsRef.current[tx.id] = tx.status;
           }
         } else if (tx.status === 'pending') {
-          setSeenTxIds(prev => ({ ...prev, [tx.id]: 'pending' }));
+          seenTxIdsRef.current[tx.id] = 'pending';
         }
       });
     }, (err) => {

@@ -12,10 +12,12 @@ import {
   Gift, 
   LayoutDashboard,
   Sun,
-  Moon
+  Moon,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -38,6 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { firebaseUser, userProfile, systemConfig, logout, isAdmin, switchToAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage, t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 dark:bg-slate-950/90 light:bg-white/90 backdrop-blur-md border-b border-emerald-500/20 text-slate-100 dark:text-slate-100 light:text-slate-900 transition-colors">
@@ -86,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
-            Dashboard
+            {t('dashboard')}
           </button>
 
           <button
@@ -98,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            Live Support
+            {t('liveSupport')}
           </button>
 
           <button
@@ -110,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
-            Help Center
+            {t('helpCenter')}
           </button>
 
           {/* Admin Panel Button */}
@@ -124,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />
-              Admin Panel
+              {t('adminPanel')}
               {isAdmin && (
                 <span className="ml-1 bg-amber-500 text-slate-950 text-[9px] px-1.5 py-0.2 rounded font-mono uppercase">
                   PRO
@@ -137,6 +140,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right User Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           
+          {/* Language Toggle Button */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-900 light:bg-slate-100 border border-slate-800 light:border-slate-300 text-emerald-400 dark:text-emerald-400 light:text-emerald-700 hover:bg-slate-800 transition-colors text-xs font-bold font-mono"
+            title="Switch Language (English / اردو)"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>{language === 'en' ? 'اردو' : 'EN'}</span>
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}

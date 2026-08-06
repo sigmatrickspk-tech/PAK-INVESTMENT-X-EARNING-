@@ -13,17 +13,28 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { userProfile, updateProfileData } = useAuth();
   
   const [theme, setThemeState] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('sigmax_theme_pref');
+    const saved = localStorage.getItem('pak_theme_pref');
     if (saved === 'light' || saved === 'dark') return saved;
     return 'dark';
   });
+
+  // Listen to window storage events for cross-tab persistence
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pak_theme_pref' && (e.newValue === 'light' || e.newValue === 'dark')) {
+        setThemeState(e.newValue);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Sync theme with user profile if available
   useEffect(() => {
     if (userProfile?.themePreference) {
       if (userProfile.themePreference !== theme) {
         setThemeState(userProfile.themePreference);
-        localStorage.setItem('sigmax_theme_pref', userProfile.themePreference);
+        localStorage.setItem('pak_theme_pref', userProfile.themePreference);
       }
     }
   }, [userProfile?.themePreference]);
@@ -38,13 +49,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.add('light');
       root.classList.remove('dark');
     }
-    localStorage.setItem('sigmax_theme_pref', theme);
+    localStorage.setItem('pak_theme_pref', theme);
   }, [theme]);
 
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setThemeState(nextTheme);
-    localStorage.setItem('sigmax_theme_pref', nextTheme);
+    localStorage.setItem('pak_theme_pref', nextTheme);
     if (userProfile) {
       updateProfileData({ themePreference: nextTheme }).catch((err) => {
         console.error('Error saving theme preference:', err);
@@ -54,7 +65,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (newTheme: 'dark' | 'light') => {
     setThemeState(newTheme);
-    localStorage.setItem('sigmax_theme_pref', newTheme);
+    localStorage.setItem('pak_theme_pref', newTheme);
     if (userProfile) {
       updateProfileData({ themePreference: newTheme }).catch((err) => {
         console.error('Error saving theme preference:', err);

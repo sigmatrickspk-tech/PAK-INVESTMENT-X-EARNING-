@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Auto-create document if missing
             const userEmail = (authUser.email || '').toLowerCase().trim();
             const allowedAdmins = (systemConfig.allowedAdminEmails || []).map(e => e.toLowerCase().trim());
-            const isOwnerOrSubAdmin = userEmail === 'sigmaxearning@gmail.com' || allowedAdmins.includes(userEmail);
+            const isOwnerOrSubAdmin = userEmail === 'admin@pakinvestmentxearning.com' || allowedAdmins.includes(userEmail);
 
             const newProfile: UserProfile = {
               uid: authUser.uid,
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const uid = cred.user.uid;
       const lowerEmail = email.toLowerCase().trim();
       const allowedAdmins = (systemConfig.allowedAdminEmails || []).map(e => e.toLowerCase().trim());
-      const isOwnerOrSubAdmin = lowerEmail === 'sigmaxearning@gmail.com' || allowedAdmins.includes(lowerEmail);
+      const isOwnerOrSubAdmin = lowerEmail === 'admin@pakinvestmentxearning.com' || allowedAdmins.includes(lowerEmail);
       
       const generatedRefCode = uid.substring(0, 7).toUpperCase();
       
@@ -228,7 +228,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const currentEmail = (firebaseUser?.email || userProfile?.email || '').toLowerCase().trim();
   const allowedAdminList = (systemConfig.allowedAdminEmails || []).map(e => e.toLowerCase().trim());
   const isAdmin = Boolean(
-    currentEmail === 'sigmaxearning@gmail.com' ||
+    currentEmail === 'admin@pakinvestmentxearning.com' ||
     allowedAdminList.includes(currentEmail) ||
     userProfile?.role === 'admin'
   );

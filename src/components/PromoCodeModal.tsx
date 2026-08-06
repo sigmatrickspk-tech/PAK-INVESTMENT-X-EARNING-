@@ -176,7 +176,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
               </div>
               <h2 className="text-xl font-black text-white">Redeem Promo Code</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Enter official voucher code for instant balance rewards. Try <span className="font-mono text-amber-400 font-bold">SIGMA2026</span>
+                Enter official voucher code for instant balance rewards. Try <span className="font-mono text-amber-400 font-bold">PAK2026</span>
               </p>
             </div>
 
@@ -194,7 +194,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="Enter Code (e.g. SIGMA2026)"
+                  placeholder="Enter Code (e.g. PAK2026)"
                   className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl py-3 px-4 text-center text-lg font-mono tracking-widest text-amber-300 uppercase placeholder-slate-600 outline-none"
                 />
               </div>

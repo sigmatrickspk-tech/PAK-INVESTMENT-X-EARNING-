@@ -270,7 +270,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   type="text"
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. SIGMA2026"
+                  placeholder="e.g. PAK2026"
                   className="w-full bg-slate-800/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 pl-10 pr-4 text-sm text-amber-400 font-mono tracking-wider placeholder-slate-500 outline-none transition-all"
                 />
               </div>

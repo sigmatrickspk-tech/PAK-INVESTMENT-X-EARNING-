@@ -22,7 +22,14 @@ import {
   Layers,
   BarChart3,
   MessageCircle,
-  Zap
+  Zap,
+  Camera,
+  Bell,
+  BellOff,
+  Target,
+  Edit3,
+  User,
+  Plus
 } from 'lucide-react';
 import { 
   collection, 
@@ -50,6 +57,9 @@ import { BottomNav, ActiveNavTab } from './BottomNav';
 import { UserAnalyticsChart } from './UserAnalyticsChart';
 import { UserActivityLogComponent } from './UserActivityLog';
 import { TopEarners } from './TopEarners';
+import { TopReferrers } from './TopReferrers';
+import { RecentTransactions } from './RecentTransactions';
+import { CameraAvatarModal } from './CameraAvatarModal';
 import { logUserActivity } from '../lib/activityLogger';
 
 interface UserDashboardProps {
@@ -76,21 +86,120 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
   const [claimedTasks, setClaimedTasks] = useState<string[]>([]);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
+  // New Features States
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [customGoalInput, setCustomGoalInput] = useState<number>(userProfile?.earningsGoal || 5000);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(userProfile?.notificationsEnabled ?? false);
+
+  const prevTxStatusRef = React.useRef<Record<string, string>>({});
+
+  // 1. Session Active Time Tracker
+  useEffect(() => {
+    const sessionTimer = setInterval(() => {
+      setSessionSeconds(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(sessionTimer);
+  }, []);
+
+  const formatSessionTime = (totalSecs: number) => {
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    return `${m}m ${s}s`;
+  };
+
+  // Sync notification preference from profile
+  useEffect(() => {
+    if (userProfile?.notificationsEnabled !== undefined) {
+      setNotificationsEnabled(userProfile.notificationsEnabled);
+    }
+    if (userProfile?.earningsGoal) {
+      setCustomGoalInput(userProfile.earningsGoal);
+    }
+  }, [userProfile?.notificationsEnabled, userProfile?.earningsGoal]);
+
+  // Toggle Browser Notifications
+  const handleToggleNotifications = async () => {
+    const nextVal = !notificationsEnabled;
+    setNotificationsEnabled(nextVal);
+
+    if (nextVal && 'Notification' in window) {
+      if (Notification.permission !== 'granted') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          setActionSuccessMsg('⚠️ Browser notifications blocked by user settings.');
+          setTimeout(() => setActionSuccessMsg(null), 4000);
+        }
+      }
+    }
+
+    if (firebaseUser) {
+      try {
+        await updateDoc(doc(db, 'users', firebaseUser.uid), {
+          notificationsEnabled: nextVal
+        });
+        setActionSuccessMsg(nextVal ? '🔔 Real-time transaction alerts enabled!' : '🔕 Transaction alerts muted.');
+        setTimeout(() => setActionSuccessMsg(null), 3000);
+      } catch (err) {
+        console.error('Error toggling notifications:', err);
+      }
+    }
+  };
+
+  // Monitor Transactions for Status Updates
+  useEffect(() => {
+    if (!transactions.length) return;
+
+    transactions.forEach(tx => {
+      const prevStatus = prevTxStatusRef.current[tx.id];
+      if (prevStatus && prevStatus !== tx.status) {
+        // Status updated!
+        if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(`Transaction ${tx.status.toUpperCase()}`, {
+            body: `Your ${tx.type} of ${systemConfig.currencySymbol}${tx.amount} has been ${tx.status} by Admin!`
+          });
+        }
+        setActionSuccessMsg(`🔔 Alert: Your ${tx.type} of ${systemConfig.currencySymbol}${tx.amount} was ${tx.status.toUpperCase()}!`);
+        setTimeout(() => setActionSuccessMsg(null), 5000);
+      }
+      prevTxStatusRef.current[tx.id] = tx.status;
+    });
+  }, [transactions, notificationsEnabled, systemConfig.currencySymbol]);
+
+  // Save Custom Earnings Goal
+  const handleSaveGoal = async () => {
+    if (!firebaseUser || customGoalInput <= 0) return;
+    try {
+      await updateDoc(doc(db, 'users', firebaseUser.uid), {
+        earningsGoal: Number(customGoalInput)
+      });
+      setIsEditingGoal(false);
+      setActionSuccessMsg(`🎯 Earnings target updated to ${systemConfig.currencySymbol}${customGoalInput.toLocaleString()}!`);
+      setTimeout(() => setActionSuccessMsg(null), 3000);
+    } catch (err) {
+      console.error('Error saving goal:', err);
+    }
+  };
+
   // Fetch Realtime User Transactions
   useEffect(() => {
     if (!firebaseUser) return;
 
     const q = query(
       collection(db, 'transactions'),
-      where('userId', '==', firebaseUser.uid),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', firebaseUser.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const txs: Transaction[] = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      } as Transaction));
+      const txs: Transaction[] = snapshot.docs
+        .map(docSnap => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as Transaction))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       setTransactions(txs);
       setLoadingTx(false);
     }, (err) => {
@@ -128,7 +237,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
   };
 
   const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`🔥 Join SIGMAXEARNINGS! Earn daily profits with instant JazzCash & EasyPaisa payouts. Register now using my referral link: ${refUrl}`);
+    const text = encodeURIComponent(`🔥 Join PAK INVESTMENT X EARNING! Earn daily profits with instant JazzCash & EasyPaisa payouts. Register now using my referral link: ${refUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
@@ -271,16 +380,59 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Member Account Active
+          <div className="flex items-center gap-4">
+            
+            {/* Avatar Photo with Camera Capture Overlay */}
+            <div className="relative group shrink-0">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/50 bg-slate-950 flex items-center justify-center shadow-lg">
+                {userProfile?.avatarUrl ? (
+                  <img src={userProfile.avatarUrl} alt="User Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-8 h-8 text-emerald-400" />
+                )}
+              </div>
+              <button
+                onClick={() => setIsCameraModalOpen(true)}
+                title="Take Camera Profile Photo"
+                className="absolute -bottom-1 -right-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 p-1.5 rounded-xl shadow-lg border border-slate-900 transition-transform active:scale-90"
+              >
+                <Camera className="w-3.5 h-3.5 font-bold" />
+              </button>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">{userProfile?.fullName || 'User'}</span>!
-            </h1>
-            <p className="text-slate-400 text-xs sm:text-sm mt-1">
-              Track your earnings, manage JazzCash/EasyPaisa payouts, and complete daily tasks.
-            </p>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Member Account
+                </span>
+
+                {/* Session Active Counter */}
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700 text-amber-300 text-[11px] font-mono font-bold">
+                  <Clock className="w-3 h-3 text-amber-400 animate-spin" /> Active: {formatSessionTime(sessionSeconds)}
+                </span>
+
+                {/* Notification Toggle */}
+                <button
+                  onClick={handleToggleNotifications}
+                  title="Toggle Real-time Transaction Notifications"
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-bold transition-all ${
+                    notificationsEnabled
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                      : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {notificationsEnabled ? <Bell className="w-3 h-3 text-emerald-400" /> : <BellOff className="w-3 h-3" />}
+                  Alerts: {notificationsEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+
+              <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">{userProfile?.fullName || 'User'}</span>!
+              </h1>
+              <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+                Track earnings, manage JazzCash/EasyPaisa payouts, and complete daily tasks.
+              </p>
+            </div>
           </div>
 
           {/* Action Hub */}
@@ -482,6 +634,77 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
 
           </div>
 
+          {/* Earnings Goal Progress Card */}
+          <div className="bg-slate-900 border border-emerald-500/20 rounded-2xl p-5 space-y-3 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    Custom Earnings Goal
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Target: <span className="font-mono text-emerald-300 font-bold">{systemConfig.currencySymbol}{(userProfile?.earningsGoal || 5000).toLocaleString()}</span>
+                  </p>
+                </div>
+              </div>
+
+              {!isEditingGoal ? (
+                <button
+                  onClick={() => setIsEditingGoal(true)}
+                  className="text-xs font-bold text-slate-400 hover:text-emerald-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+                >
+                  <Edit3 className="w-3.5 h-3.5" /> Adjust Goal
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={customGoalInput}
+                    onChange={(e) => setCustomGoalInput(Number(e.target.value))}
+                    className="bg-slate-950 border border-emerald-500/50 rounded-xl px-2.5 py-1 text-xs font-mono text-white w-24 outline-none"
+                  />
+                  <button
+                    onClick={handleSaveGoal}
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-3 py-1 rounded-xl shadow transition-all"
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Progress Bar */}
+            {(() => {
+              const goal = userProfile?.earningsGoal || 5000;
+              const earned = userProfile?.totalEarnings || 0;
+              const pct = Math.min(100, Math.round((earned / goal) * 100));
+              return (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-400">
+                      Progress: <span className="text-emerald-400 font-bold">{pct}%</span>
+                    </span>
+                    <span className="text-slate-400">
+                      {systemConfig.currencySymbol}{earned.toLocaleString()} / {systemConfig.currencySymbol}{goal.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 p-0.5">
+                    <div
+                      className="bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 h-full rounded-full transition-all duration-500 shadow-lg shadow-emerald-500/20"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Recharts 7-Day Earnings Analytics Chart */}
+          <UserAnalyticsChart transactions={transactions} systemConfig={systemConfig} />
+
           {/* Referral Link & Share Section */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 relative">
             <div className="flex items-center gap-3">
@@ -532,6 +755,13 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Top Referrers & Commission Brackets */}
+          <TopReferrers
+            systemConfig={systemConfig}
+            userProfile={userProfile}
+            onOpenShareModal={handleCopyReferral}
+          />
 
           {/* Recharts Visual Transaction Analytics Chart */}
           <UserAnalyticsChart transactions={transactions} systemConfig={systemConfig} />
@@ -625,151 +855,21 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
           {/* User Activity Audit Log */}
           <UserActivityLogComponent />
 
-          {/* Transaction History & Status Tracker */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-emerald-400" /> Transaction & Payout History
-                </h2>
-                <p className="text-xs text-slate-400">Real-time status of your deposits, withdrawals & earnings.</p>
-              </div>
-              <button
-                onClick={onOpenSupport}
-                className="text-xs text-emerald-400 hover:underline flex items-center gap-1 self-start sm:self-auto"
-              >
-                Need help with a transaction? Contact Support →
-              </button>
-            </div>
-
-            {loadingTx ? (
-              <div className="py-12 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
-                <RefreshCw className="w-4 h-4 animate-spin text-emerald-400" /> Loading transaction ledger...
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="py-12 text-center border border-dashed border-slate-800 rounded-xl p-8">
-                <Wallet className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">No transactions recorded yet.</p>
-                <p className="text-[11px] text-slate-500 mt-1">
-                  Make a deposit or claim a daily task to see activity here!
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-950/80 text-slate-400 text-[10px] uppercase font-mono tracking-wider border-b border-slate-800">
-                    <tr>
-                      <th className="py-3 px-4">Type</th>
-                      <th className="py-3 px-4">Method / Details</th>
-                      <th className="py-3 px-4">TID / Ref</th>
-                      <th className="py-3 px-4">Amount</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Date & Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    {transactions.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-slate-800/40 transition-colors">
-                        
-                        {/* Type */}
-                        <td className="py-3.5 px-4 font-bold capitalize">
-                          {tx.type === 'deposit' && (
-                            <span className="text-emerald-400 flex items-center gap-1">
-                              <ArrowDownLeft className="w-3.5 h-3.5" /> Deposit
-                            </span>
-                          )}
-                          {tx.type === 'withdrawal' && (
-                            <span className="text-amber-400 flex items-center gap-1">
-                              <ArrowUpRight className="w-3.5 h-3.5" /> Withdrawal
-                            </span>
-                          )}
-                          {tx.type === 'task_earning' && (
-                            <span className="text-teal-300 flex items-center gap-1">
-                              <Sparkles className="w-3.5 h-3.5" /> Task Reward
-                            </span>
-                          )}
-                          {tx.type === 'promo_reward' && (
-                            <span className="text-purple-400 flex items-center gap-1">
-                              <Gift className="w-3.5 h-3.5" /> Promo Bonus
-                            </span>
-                          )}
-                          {tx.type === 'plan_purchase' && (
-                            <span className="text-indigo-400 flex items-center gap-1">
-                              <Layers className="w-3.5 h-3.5" /> VIP Subscription
-                            </span>
-                          )}
-                          {tx.type === 'plan_profit' && (
-                            <span className="text-emerald-300 flex items-center gap-1">
-                              <TrendingUp className="w-3.5 h-3.5" /> Yield Profit
-                            </span>
-                          )}
-                          {tx.type === 'referral_bonus' && (
-                            <span className="text-amber-300 flex items-center gap-1">
-                              <Share2 className="w-3.5 h-3.5" /> Referral Bonus
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Method */}
-                        <td className="py-3.5 px-4">
-                          <span className="font-semibold text-white">{tx.method}</span>
-                          {tx.accountNumber && (
-                            <span className="block text-[10px] text-slate-400 font-mono">
-                              {tx.accountTitle ? `${tx.accountTitle} (${tx.accountNumber})` : tx.accountNumber}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* TID */}
-                        <td className="py-3.5 px-4 font-mono text-slate-300">
-                          {tx.transactionId || 'N/A'}
-                        </td>
-
-                        {/* Amount */}
-                        <td className="py-3.5 px-4 font-black text-sm font-mono text-white">
-                          {systemConfig.currencySymbol}{tx.amount.toLocaleString()}
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3.5 px-4">
-                          {tx.status === 'approved' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Approved
-                            </span>
-                          )}
-                          {tx.status === 'pending' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold animate-pulse">
-                              <Clock className="w-3 h-3 text-amber-400" /> Pending Review
-                            </span>
-                          )}
-                          {tx.status === 'rejected' && (
-                            <div>
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-bold">
-                                <XCircle className="w-3 h-3 text-rose-400" /> Rejected
-                              </span>
-                              {tx.rejectionReason && (
-                                <span className="block text-[10px] text-rose-400/80 mt-0.5">
-                                  Reason: {tx.rejectionReason}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </td>
-
-                        {/* Date */}
-                        <td className="py-3.5 px-4 text-right text-[11px] text-slate-400 font-mono">
-                          {new Date(tx.createdAt).toLocaleString()}
-                        </td>
-
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          {/* Recent Transactions & History Component */}
+          <RecentTransactions
+            transactions={transactions}
+            systemConfig={systemConfig}
+            onOpenDeposit={onOpenDeposit}
+            onOpenWithdraw={onOpenWithdraw}
+          />
         </>
       )}
+
+      {/* Camera Avatar Capture Modal */}
+      <CameraAvatarModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+      />
 
       {/* Floating Mobile/Desktop Bottom Navigation Bar */}
       <BottomNav

@@ -193,7 +193,7 @@ export const AdminPromoCodes: React.FC = () => {
           <div className="py-8 text-center text-slate-500 text-xs">Loading promo codes...</div>
         ) : promoCodes.length === 0 ? (
           <div className="py-8 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl p-4">
-            No active custom promo codes created yet. Users can still redeem default codes like SIGMA2026.
+            No active custom promo codes created yet. Users can still redeem default codes like PAK2026.
           </div>
         ) : (
           <div className="overflow-x-auto">

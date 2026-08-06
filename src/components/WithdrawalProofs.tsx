@@ -94,7 +94,7 @@ export const WithdrawalProofs: React.FC = () => {
             Withdrawal Proofs & Community Feed
           </h2>
           <p className="text-xs text-slate-300 max-w-xl">
-            Real payout screenshots & payment receipts uploaded live by verified SIGMAXEARNINGS investors.
+            Real payout screenshots & payment receipts uploaded live by verified PAK INVESTMENT X EARNING investors.
           </p>
         </div>
 
