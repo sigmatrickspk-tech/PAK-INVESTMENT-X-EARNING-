@@ -1,0 +1,42 @@
+workflows:
+  android-capacitor-debug-apk:
+    name: Build Android Debug APK
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      node: 20.x
+      java: 17
+    scripts:
+      - name: Install project dependencies
+        script: |
+          npm ci || npm install
+
+      - name: Increment version code and version name
+        script: |
+          npm run bump-version || true
+
+      - name: Build web application with Vite
+        script: |
+          npm run build
+
+      - name: Sync web assets with Capacitor Android
+        script: |
+          npx cap sync android
+
+      - name: Build Android Debug APK using Gradle
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/app-debug.apk
+      - android/app/build/outputs/apk/**/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - sigmatrickspk@gmail.com
+        notify:
+          success: true
+          failure: true
